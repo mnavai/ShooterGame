@@ -1,0 +1,90 @@
+using UnityEngine;
+using System.Collections;
+
+public class enemyMovement : MonoBehaviour {
+	
+	public float speed = 2;
+	float positionX;
+	GameObject findThePlayer; //declares an empty game object
+	
+
+	// Use this for initialization
+	void Start () {
+		
+		findThePlayer = GameObject.Find("player"); //makes the empty obj equaal to player.  
+	
+	}
+	
+	// Update is called once per frame
+	void Update () {
+		
+
+		#region check to see if we are in a playing state
+		if(findThePlayer.GetComponent<playerMovementAndControl>().State == playerMovementAndControl.states.playing ||
+			findThePlayer.GetComponent<playerMovementAndControl>().State == playerMovementAndControl.states.invincible)
+		{
+			
+		#region enemy movement 
+		float amtToMove = speed * Time.deltaTime; //rate of movement
+		transform.Translate(Vector3.down * amtToMove);
+		#endregion 
+		
+		#region reset position
+		if(transform.position.y <-41)
+		{
+			resetPosition();
+		}
+		#endregion 
+			
+
+				}
+	
+		#endregion 
+	}
+
+	#region on trigger enter
+	void OnTriggerEnter(Collider other)
+	{
+		if(findThePlayer.GetComponent<playerMovementAndControl>().State == playerMovementAndControl.states.playing ||
+		findThePlayer.GetComponent<playerMovementAndControl>().State == playerMovementAndControl.states.invincible)
+		{
+			if(other.tag == "projectile")
+			{
+				resetPosition();
+				Destroy(other.gameObject);
+				findThePlayer.gameObject.GetComponent<playerMovementAndControl>().score += 10;
+				Debug.Log(findThePlayer.gameObject.GetComponent<playerMovementAndControl>().score);
+			}
+		}
+		
+		if(findThePlayer.GetComponent<playerMovementAndControl>().State == playerMovementAndControl.states.playing)
+		{
+			if(other.tag == "player")
+			{
+				resetPosition();
+				other.gameObject.GetComponent<playerMovementAndControl>().lives-- ;
+				Debug.Log(other.gameObject.GetComponent<playerMovementAndControl>().lives);
+				playerMovementAndControl PlayerMovementAndControl = other.GetComponent("playerMovementAndControl") as 
+				playerMovementAndControl;
+				
+				PlayerMovementAndControl.startRespawn();
+			}
+		}
+	}
+	
+	#endregion 
+	
+	#region reset function
+				
+	
+	
+	public void resetPosition()
+	{
+	
+	positionX = Random.Range(-82,84);
+	transform.position = new Vector3(positionX, 98, transform.position.z);    
+	
+	}
+	
+	#endregion
+}
