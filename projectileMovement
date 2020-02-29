@@ -1,0 +1,30 @@
+using UnityEngine;
+using System.Collections;
+
+public class projectileMovement : MonoBehaviour {
+	
+	private float speed = .5f;
+	
+
+	// Use this for initialization
+	void Start () {
+	
+	}
+	
+	// Update is called once per frame
+	void Update () {
+		
+		#region movement
+		float amtToMove = speed * Time.deltaTime;
+		transform.Translate(Vector3.up * speed);
+		#endregion 
+	
+		#region destroy projectile
+		if(transform.position.y > 119)
+		{
+			Destroy(this.gameObject); 
+	    }
+		
+		#endregion 
+	}
+}
