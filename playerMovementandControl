@@ -1,0 +1,81 @@
+using UnityEngine;
+using System.Collections;
+
+public class playerMovementAndControl : MonoBehaviour {
+	
+	private float speed = 30; 
+	public GameObject projectile; //for initialization of the bullet
+	public int lives = 3;
+	public int score = 0;
+	public enum states{playing,invincible,exploding,dead,paused};
+	public states State = states.playing; 
+	
+
+	// Use this for initialization
+	void Start () {
+	
+	}
+	
+	// Update is called once per frame
+	void Update () {
+		#region state machine
+		if(State == states.playing || State == states.invincible && State != states.paused && State != states.exploding && State != states.dead)
+		{
+		
+		#region player movement
+		float amtToMove = Input.GetAxis("Horizontal")*speed * Time.deltaTime; //direction of movement with real speed and time
+		transform.Translate(Vector3.right * amtToMove); //moves the player perfram along the x axis multiplied by amtToMove
+		#endregion 
+		
+		#region warping
+		if(transform.position.x > 107)
+		{
+			transform.position = new Vector3(-111, transform.position.y, transform.position.z);
+		}
+		
+		if(transform.position.x < -111)
+		{
+			
+	        transform.position = new Vector3(107, transform.position.y, transform.position.z);
+	     
+		}
+		
+		#endregion 
+		#region fire projectile
+		
+		if(Input.GetKeyDown(KeyCode.Space)) 
+		{
+			
+			Instantiate(projectile, transform.position, Quaternion.identity);
+		}
+		#endregion 
+	}
+	#endregion 		
+}
+	
+	public void startRespawn() //funtion to start our coroutine
+	{
+		StartCoroutine(respawnPlayer());
+	}
+	
+	IEnumerator respawnPlayer() //our destroy ship and respawn coroutine
+	{
+		State = states.exploding;
+		transform.position = new Vector3(0,-6,transform.position.z);
+		State = states.dead;
+		yield return new WaitForSeconds(3); //time left before we can slide back to the screen.
+		
+		while(transform.position.y < -3)
+		{
+			float amtToMove = 2 * Time.deltaTime;
+			transform.position = new Vector3(0,transform.position.y + amtToMove, transform.position.z);
+			yield return 0;
+			
+		}
+		
+		State = states.invincible;
+		yield return new WaitForSeconds(10); 
+		State = states.playing;
+	}
+}
+
